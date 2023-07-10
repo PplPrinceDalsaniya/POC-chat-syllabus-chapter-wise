@@ -1,56 +1,9 @@
 import streamlit as st
 from dotenv import load_dotenv
+from database import availableDatabase, getParams, get_params_from_labels
 
 st.set_page_config(page_title="POC GPT knowledgebase", page_icon="📖", layout="wide")
 st.header("📖 Ask your Books")
-
-# Available Chapterlist Arrays
-availableScienceChapters = [
-  {
-    "path": './docs/Science/Science_ch2.pdf',
-    "label": 'Ch-2 : Acids, Bases and Salts',
-    "key": 'science_ch_2'
-  },
-  {
-    "path": './docs/Science/Science_ch3.pdf',
-    "label": 'Ch-3 : Metals and Non-metals',
-    "key": 'science_ch_3'
-  },
-  {
-    "path": './docs/Science/Science_ch13.pdf',
-    "label": 'Ch-13 : Our Environment',
-    "key": 'science_ch_13'
-  },
-]
-
-
-availableSocialScienceChapters = [
-  {
-    "path": './docs/ScocialScience/SS_ch1.pdf',
-    "label": 'Ch-1 : Resources and Development',
-    "key": 'ss_ch_2'
-  },
-  {
-    "path": './docs/ScocialScience/SS_ch2.pdf',
-    "label": 'Ch-2 : Forest and wildlife resources',
-    "key": 'ss_ch_2'
-  },
-  {
-    "path": './docs/ScocialScience/SS_ch3.pdf',
-    "label": 'Ch-3 : Water Resources',
-    "key": 'ss_ch_3'
-  },
-  {
-    "path": './docs/ScocialScience/SS_ch4.pdf',
-    "label": 'Ch-4 : Agriculture',
-    "key": 'ss_ch_4'
-  },
-]
-
-
-def getParams(chapters, key):
-  return [chapter[key] for chapter in chapters]
-
 
 # Sidebar.
 def sidebar():
@@ -63,15 +16,26 @@ def sidebar():
     )
     st.divider()
     st.title('Step 1 - Select books : ')
+
+    if "currentlySelectedLabels" not in st.session_state:
+      st.session_state.currentlySelectedLabels = []
+    if "currentlySelectedIds" not in st.session_state:
+      st.session_state.currentlySelectedIds = []
+    
     ScienceExpander = st.expander("Class 10 Science")
     scienceChapters = ScienceExpander.multiselect('Select the chapters that you want to ask :',
-      getParams(availableScienceChapters, 'label'), key='scienceChapters')
+      getParams(availableDatabase['science'], 'label'), key='scienceChapters')
+    
     SocialScienceExpander = st.expander("Class 10 Social-Science")
     socialScienceChapters = SocialScienceExpander.multiselect('Select the chapters that you want to ask :',
-      getParams(availableSocialScienceChapters, 'label'), key='socialScienceChapters')
+      getParams(availableDatabase['socialScience'], 'label'), key='socialScienceChapters')
+    
     st.divider()
-    st.write('Science chapters : ', scienceChapters)
-    st.write('Social-Science chapters : ', socialScienceChapters)
+
+    if st.button('Create Indices'):
+      st.session_state.currentlySelectedLabels = scienceChapters + socialScienceChapters
+      st.session_state.currentlySelectedIds = get_params_from_labels(st.session_state.currentlySelectedLabels, availableDatabase, 'id')
+      st.write('Selected chapters keys : ', st.session_state.currentlySelectedIds)
 
 
 def main():
