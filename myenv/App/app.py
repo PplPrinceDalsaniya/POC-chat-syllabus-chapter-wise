@@ -1,9 +1,16 @@
+import os
 import streamlit as st
-from dotenv import load_dotenv
+import openai
+key = '<KEY>' # UPDATE THE KEY BEFORE RUNNING
+openai.api_key = key
+os.environ['OPENAI_API_KEY'] = key
 from database import availableDatabase, getParams, get_params_from_labels
+from createIndices import createIndexForAllFilesTogather
+from generateResponse import generate_response_from_common_index
 
 st.set_page_config(page_title="POC GPT knowledgebase", page_icon="📖", layout="wide")
 st.header("📖 Ask your Books")
+
 
 # Sidebar.
 def sidebar():
@@ -39,8 +46,10 @@ def sidebar():
 
 
 def main():
-  load_dotenv()
   sidebar()
+  # createIndexForAllFilesTogather()
+  print('Answer : ', generate_response_from_common_index("Acids change the blue litmus paper to which colour?"))
+  print('Answer : ', generate_response_from_common_index("How do they taste?"))
 
 
 if __name__ == '__main__':
