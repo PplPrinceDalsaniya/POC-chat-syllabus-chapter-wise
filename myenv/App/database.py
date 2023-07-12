@@ -1,6 +1,6 @@
 # Available Chapterlist Arrays
 
-availableScienceChapters = [
+availableDatabase = {
   {
     "path": './docs/science_ch_2.pdf',
     "label": 'Ch-2 : Acids, Bases and Salts',
@@ -19,9 +19,6 @@ availableScienceChapters = [
     "id": 'science_ch_13',
     "desc": "Subject Science, Chapter 13: Our Environment. We have heard the word 'environment' often being used on the television, in newspapers and by people around us. Our elders tell us that the 'environment' is not what it used to be earlier; others say that we should work in a healthy 'environment'; and global summits involving the developed and developing countries are regularly held to discuss 'environmental' issues. In this chapter, we shall be studying how various components in the environment interact with each other and how we impact the environment"
   },
-]
-
-availableSocialScienceChapters = [
   {
     "path": './docs/socialscience_ch_2.pdf',
     "label": 'Ch-2 : Forest and wildlife resources',
@@ -40,20 +37,30 @@ availableSocialScienceChapters = [
     "id": 'socialscience_ch_4',
     "desc": "Subject SocialScience, Chapter 4 : Agriculture. India is an agriculturally important country. Two-thirds of its population is engaged in agricultural activities. Agriculture is a primary activity, which produces most of the food that we consume. Besides food grains, it also produces raw material for various industries. This chapter explores the agriculture sector of india."
   },
-]
-
-availableDatabase = {
-  "science": availableScienceChapters,
-  "socialScience": availableSocialScienceChapters
 }
 
-def getParams(chapters, param):
-  return [chapter[param] for chapter in chapters]
 
-def get_params_from_labels(selected_labels, database, param):
-    param_values = []
-    for subject in database:
-        for item in database[subject]:
-            if item['label'] in selected_labels:
-              param_values.append(item[param])
-    return param_values
+# getAllParams : ex. getAllLabels || getAllIds || etc
+def get_all_param(targetParam):
+  result = []
+  for entry in availableDatabase:
+    if targetParam in entry:
+      result.append(entry[targetParam])
+  return result
+
+
+# getValueByParams : ex. get label for this id
+def get_value_by_param(targetParam, searchParam, searchValue):
+  for chapter in availableDatabase:
+    if chapter[searchParam] == searchValue:
+      return chapter[targetParam]
+  return None
+
+
+# getTargetParamsForThisValues : ex. getDescForThisIds || getDescForThisLabels
+def get_target_params_for_this_values(targetParam, searchParam, searchValues):
+  result = []
+  for chapter in availableDatabase:
+    if chapter[searchParam] in searchValues:
+      result.append(chapter[targetParam])
+  return result
