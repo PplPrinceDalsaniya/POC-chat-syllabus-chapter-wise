@@ -1,8 +1,8 @@
-import os
 import streamlit as st
 from database import get_target_params_for_this_values
+from createIndices import create_combined_index_for_directory
 
-import openai
+import openai, os
 key = '<KEY>' # UPDATE THE KEY BEFORE RUNNING
 openai.api_key = key
 os.environ['OPENAI_API_KEY'] = key
@@ -45,7 +45,17 @@ def sidebar():
 
 
 def main():
+
+  # This function will create a combined index of all the syllabus available in docs directory.
+  # This is meant to be ran for only one time.
+  # create_combined_index_for_directory('./Docs', 'combinedIndex')
+
+  # This function will create index for each file available in database.
+  # This is meant to be ran for only one time.
+  # create_index_for_each_entry_in_db()
+
   st.set_page_config(page_title="POC GPT knowledgebase", page_icon="📖", layout="wide")
+
   initiateSessionStorage()
   sidebar()
   
@@ -53,16 +63,6 @@ def main():
     st.header("📖 Ask your Chapters")
   else:
     st.header("Please load some chapters first.")
-  # This function will create a combined index of all the syllabus available in docs directory.
-  # This is meant to be ran for only one time.
-  # createIndexForAllFilesTogather()
-
-  # This function will create index for each file available in docs directory.
-  # This is meant to be ran for only one time.
-  # createIndexForEachFile()
-  
-  # print('Answer : ', generate_response_from_common_index("Acids change the blue litmus paper to which colour?"))
-  # print('Answer : ', generate_response_from_common_index("How do they taste?"))
 
 
 if __name__ == '__main__':

@@ -1,33 +1,32 @@
 from llama_index import download_loader, VectorStoreIndex
-from database import availableDatabase, get_params_from_labels, getParams
+from database import availableDatabase
 from pathlib import Path
 from llama_hub.file.unstructured.base import UnstructuredReader
 
 
-def createIndexForAllFilesTogather():
+def create_index_for_this_file(filePath, indexName):
+  loader = UnstructuredReader()
+  documents = loader.load_data(file=Path(filePath))
+  index = VectorStoreIndex.from_documents(documents)
+  index.storage_context.persist(f"./vectorIndexDataStore/individualIndices/{indexName}")
+
+
+def create_index_for_each_entry_in_db():
+  for entry in availableDatabase:
+    create_index_for_this_file(entry['path'], entry['id'])
+
+
+def create_combined_index_for_directory(directoryPath, indexName):
   SimpleDirectoryReader = download_loader("SimpleDirectoryReader")
-  loader = SimpleDirectoryReader('./Docs')
+  loader = SimpleDirectoryReader(directoryPath)
   documents = loader.load_data()
   index = VectorStoreIndex.from_documents(documents)
-  index.storage_context.persist("./combinedVectorIndex")
-
-
-def createIndexForFile(labels):
-  chapter_ids = get_params_from_labels(labels, availableDatabase, 'id')
-  for id in chapter_ids:
-    loader = UnstructuredReader()
-    documents = loader.load_data(file=Path(f'./Docs/{id}.pdf'))
-    index = VectorStoreIndex.from_documents(documents)
-    index.storage_context.persist(f"./vectorIndexDataStore/{id}_index")
-
-
-def createIndexForEachFile():
-  for subject in availableDatabase:
-    createIndexForFile(getParams(availableDatabase[subject], 'label'))
+  index.storage_context.persist(f'./vectorIndexDataStore/{indexName}')
 
 
 def main():
-  createIndexForEachFile()
+  create_combined_index_for_directory('./Docs', 'combinedIndex')
+  create_index_for_each_entry_in_db()
 
 
 if __name__ == '__main__':
