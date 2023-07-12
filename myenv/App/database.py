@@ -50,10 +50,10 @@ availableDatabase = {
 def getParams(chapters, param):
   return [chapter[param] for chapter in chapters]
 
-def get_params_from_labels(selected_labels, database, param):
+def get_info_from_param(selected_labels, database, param, search_param='label'):
     param_values = []
     for subject in database:
         for item in database[subject]:
-            if item['label'] in selected_labels:
+            if item[search_param] in selected_labels:
               param_values.append(item[param])
     return param_values

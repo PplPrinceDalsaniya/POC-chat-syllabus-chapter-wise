@@ -1,5 +1,5 @@
 from llama_index import download_loader, VectorStoreIndex
-from database import availableDatabase, get_params_from_labels, getParams
+from database import availableDatabase, get_info_from_param, getParams
 from pathlib import Path
 from llama_hub.file.unstructured.base import UnstructuredReader
 
@@ -13,7 +13,7 @@ def createIndexForAllFilesTogather():
 
 
 def createIndexForFile(labels):
-  chapter_ids = get_params_from_labels(labels, availableDatabase, 'id')
+  chapter_ids = get_info_from_param(labels, availableDatabase, 'id')
   for id in chapter_ids:
     loader = UnstructuredReader()
     documents = loader.load_data(file=Path(f'./Docs/{id}.pdf'))
