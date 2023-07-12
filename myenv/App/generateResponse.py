@@ -1,7 +1,7 @@
 from llama_index import StorageContext, load_index_from_storage
 
 def generate_response_from_common_index(prompt):
-  storage_context = StorageContext.from_defaults(persist_dir="./combinedVectorIndex")
+  storage_context = StorageContext.from_defaults(persist_dir="./vectorIndexDataStore/combinedIndex")
   index = load_index_from_storage(storage_context)
   print('Index : ', index)
   query_engin = index.as_query_engine() 

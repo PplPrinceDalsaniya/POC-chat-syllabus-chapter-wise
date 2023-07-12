@@ -9,3 +9,4 @@ llama-index==0.7.3
 llama_hub==0.0.8
 pypdf==3.12.0
 unstructured==0.8.0
+streamlit-chat==0.1.1
