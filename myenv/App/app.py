@@ -2,7 +2,7 @@ import streamlit as st
 from streamlit_chat import message
 from database import get_target_params_for_this_values
 from createIndices import create_combined_index_for_directory, create_index_for_each_entry_in_db
-from generateResponse import generate_response_from_common_index
+from generateResponse import generate_response_from_common_index, load_search_engine, generate_response_from_given_query_engine
 
 import openai, os
 key = '<KEY>' # UPDATE THE KEY BEFORE RUNNING
@@ -52,6 +52,7 @@ def sidebar():
       st.session_state['currentlySelectedLabels'] = scienceChapters + socialScienceChapters
       st.session_state['loaded'] = True
       st.write('Selected chapters labels : ', st.session_state['currentlySelectedLabels'])
+      load_search_engine(st.session_state['currentlySelectedLabels'])
 
 
 def main():
@@ -82,9 +83,10 @@ def main():
           submit_button = st.form_submit_button(label='Send')
 
       if submit_button and user_input:
-          output = generate_response_from_common_index(user_input)
+          output1 = generate_response_from_common_index(user_input)
+          output2 = generate_response_from_given_query_engine(user_input)
           st.session_state['past'].append(user_input)
-          st.session_state['generated'].append(output)
+          st.session_state['generated'].append(output1 + '\n\n-----OR-----\n\n' + output2)
           
     if st.session_state['generated']:
       with response_container:
@@ -93,7 +95,7 @@ def main():
           message(st.session_state["generated"][i], key=str(i))
   
   else:
-    st.header("Please load some chapters first.")  
+    st.header("Please load some chapters first.")
 
 
 
