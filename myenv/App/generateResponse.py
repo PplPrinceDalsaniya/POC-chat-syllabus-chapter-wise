@@ -1,11 +1,18 @@
 from llama_index import StorageContext, load_index_from_storage
+from langchain import OpenAI
+from langchain.chains.conversation.memory import ConversationBufferMemory
+from langchain.agents import initialize_agent
 from database import get_target_params_for_this_values
 from llama_index.tools.query_engine import QueryEngineTool
 from llama_index.query_engine.router_query_engine import RouterQueryEngine
 from llama_index.selectors.llm_selectors import LLMSingleSelector
+from llama_index.langchain_helpers.agents import (
+    LlamaToolkit,
+    create_llama_chat_agent,
+    IndexToolConfig,
+)
 
-
-specific_search_engine = None
+global_agent_chain = None
 
 
 def generate_response_from_common_index(prompt):
@@ -20,8 +27,8 @@ def generate_response_from_common_index(prompt):
 
 
 def generate_response_from_given_query_engine(prompt):
-  answer = str(specific_search_engine.query(prompt))
-  print('Answer in routing : ', answer)
+  answer = global_agent_chain.run(input=prompt)
+  print('Answer in routing buffermemory : ', answer)
   return answer
 
 
@@ -38,18 +45,20 @@ def load_search_engine(labels):
 
   vectorQueryEngines = [index.as_query_engine() for index in vectorIndices]
 
-  vector_tools = []
+  index_configs = []
   for subject, query_engine, label in zip(subjects, vectorQueryEngines, labels):
-    vector_tool = QueryEngineTool.from_defaults(
+    tool_config = IndexToolConfig(
         query_engine=query_engine,
+        name=f"{label}",
         description=f"Useful for when you want to answer queries about subject {subject} and ch(means chapter) {label}.",
+        tool_kwargs={"return_sources": True},
     )
-    vector_tools.append(vector_tool)
+    index_configs.append(tool_config)
 
-  query_engine = RouterQueryEngine(
-    selector=LLMSingleSelector.from_defaults(),
-    query_engine_tools=(vector_tools)
-  )
+  toolkit = LlamaToolkit(index_configs=index_configs)
+  memory = ConversationBufferMemory(memory_key="chat_history")
+  llm = OpenAI(temperature=0)
+  agent_chain = create_llama_chat_agent(toolkit, llm, memory=memory, verbose=True)
 
-  global specific_search_engine
-  specific_search_engine = query_engine
+  global global_agent_chain
+  global_agent_chain = agent_chain
